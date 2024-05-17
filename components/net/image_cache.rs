@@ -24,7 +24,7 @@ use net_traits::{
 use servo_url::{ImmutableOrigin, ServoUrl};
 use webrender_api::units::DeviceIntSize;
 use webrender_api::{ImageData, ImageDescriptor, ImageDescriptorFlags, ImageFormat};
-use webrender_traits::WebrenderIpcSender;
+use webrender_traits::WebRenderNetApi;
 
 use crate::resource_thread::CoreResourceThreadPool;
 
@@ -47,13 +47,13 @@ fn decode_bytes_sync(key: LoadKey, bytes: &[u8], cors: CorsStatus) -> DecoderMsg
     DecoderMsg { key, image }
 }
 
-fn get_placeholder_image(webrender_api: &WebrenderIpcSender, data: &[u8]) -> Arc<Image> {
+fn get_placeholder_image(webrender_api: &WebRenderNetApi, data: &[u8]) -> Arc<Image> {
     let mut image = load_from_memory(data, CorsStatus::Unsafe).unwrap();
     set_webrender_image_key(webrender_api, &mut image);
     Arc::new(image)
 }
 
-fn set_webrender_image_key(webrender_api: &WebrenderIpcSender, image: &mut Image) {
+fn set_webrender_image_key(webrender_api: &WebRenderNetApi, image: &mut Image) {
     if image.id.is_some() {
         return;
     }
@@ -331,7 +331,7 @@ struct ImageCacheStore {
     placeholder_url: ServoUrl,
 
     // Webrender API instance.
-    webrender_api: WebrenderIpcSender,
+    webrender_api: WebRenderNetApi,
 }
 
 impl ImageCacheStore {
@@ -418,7 +418,7 @@ pub struct ImageCacheImpl {
 }
 
 impl ImageCache for ImageCacheImpl {
-    fn new(webrender_api: WebrenderIpcSender) -> ImageCacheImpl {
+    fn new(webrender_api: WebRenderNetApi) -> ImageCacheImpl {
         debug!("New image cache");
 
         let rippy_data = resources::read_bytes(Resource::RippyPNG);
