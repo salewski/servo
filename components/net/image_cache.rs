@@ -12,19 +12,19 @@ use embedder_traits::resources::{self, Resource};
 use imsz::imsz_from_reader;
 use ipc_channel::ipc::IpcSender;
 use log::{debug, warn};
-use net_traits::image::base::{load_from_memory, Image, ImageMetadata};
+use pixels::{load_from_memory, CorsStatus, Image, ImageMetadata, PixelFormat};
 use net_traits::image_cache::{
-    CorsStatus, ImageCache, ImageCacheResult, ImageOrMetadataAvailable, ImageResponder,
+    ImageCache, ImageCacheResult, ImageOrMetadataAvailable, ImageResponder,
     ImageResponse, PendingImageId, PendingImageResponse, UsePlaceholder,
 };
 use net_traits::request::CorsSettings;
 use net_traits::{
-    FetchMetadata, FetchResponseMsg, FilteredMetadata, NetworkError, WebrenderIpcSender,
+    FetchMetadata, FetchResponseMsg, FilteredMetadata, NetworkError,
 };
-use pixels::PixelFormat;
 use servo_url::{ImmutableOrigin, ServoUrl};
 use webrender_api::units::DeviceIntSize;
 use webrender_api::{ImageData, ImageDescriptor, ImageDescriptorFlags, ImageFormat};
+use webrender_traits::WebrenderIpcSender;
 
 use crate::resource_thread::CoreResourceThreadPool;
 

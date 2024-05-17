@@ -20,9 +20,9 @@ use ipc_channel::router::ROUTER;
 use js::jsapi::JSAutoRealm;
 use js::rust::HandleObject;
 use mime::{self, Mime};
-use net_traits::image::base::{Image, ImageMetadata};
+use pixels::{CorsStatus, Image, ImageMetadata};
 use net_traits::image_cache::{
-    CorsStatus, ImageCache, ImageCacheResult, ImageOrMetadataAvailable, ImageResponse,
+    ImageCache, ImageCacheResult, ImageOrMetadataAvailable, ImageResponse,
     PendingImageId, PendingImageResponse, UsePlaceholder,
 };
 use net_traits::request::{CorsSettings, Destination, Initiator, Referrer, RequestBuilder};

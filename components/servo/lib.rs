@@ -36,8 +36,7 @@ use compositing::webview::UnknownWebView;
 use compositing::windowing::{EmbedderEvent, EmbedderMethods, WindowMethods};
 use compositing::{CompositeTarget, IOCompositor, InitialCompositorState, ShutdownState};
 use compositing_traits::{
-    CanvasToCompositorMsg, CompositorMsg, CompositorProxy, CompositorReceiver, ConstellationMsg,
-    FontToCompositorMsg, ForwardedToCompositorMsg,
+    CompositorMsg, CompositorProxy, CompositorReceiver, ConstellationMsg, ForwardedToCompositorMsg,
 };
 #[cfg(all(
     not(target_os = "windows"),
@@ -96,6 +95,7 @@ use webrender_api::{
     NativeFontHandle,
 };
 use webrender_traits::{
+    CanvasToCompositorMsg, FontToCompositorMsg, ImageUpdate,
     WebRenderFontApi, WebrenderExternalImageHandlers, WebrenderExternalImageRegistry,
     WebrenderImageHandlerType,
 };
@@ -1100,7 +1100,7 @@ impl canvas_paint_thread::WebrenderApi for CanvasWebrenderApi {
             )));
         receiver.recv().ok()
     }
-    fn update_images(&self, updates: Vec<canvas_paint_thread::ImageUpdate>) {
+    fn update_images(&self, updates: Vec<ImageUpdate>) {
         self.0
             .send(CompositorMsg::Forwarded(ForwardedToCompositorMsg::Canvas(
                 CanvasToCompositorMsg::UpdateImages(updates),

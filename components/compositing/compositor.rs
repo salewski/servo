@@ -13,10 +13,9 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use base::id::{PipelineId, TopLevelBrowsingContextId, WebViewId};
 use base::{Epoch, WebRenderEpochToU16};
-use canvas::canvas_paint_thread::ImageUpdate;
 use compositing_traits::{
-    CanvasToCompositorMsg, CompositionPipeline, CompositorMsg, CompositorReceiver,
-    ConstellationMsg, FontToCompositorMsg, ForwardedToCompositorMsg, SendableFrameTree,
+    CompositionPipeline, CompositorMsg, CompositorReceiver,
+    ConstellationMsg, ForwardedToCompositorMsg, SendableFrameTree,
 };
 use crossbeam_channel::Sender;
 use embedder_traits::Cursor;
@@ -27,16 +26,13 @@ use image::{DynamicImage, ImageFormat};
 use ipc_channel::ipc;
 use libc::c_void;
 use log::{debug, error, info, trace, warn};
-use net_traits::image::base::Image;
-use net_traits::image_cache::CorsStatus;
-use pixels::PixelFormat;
+use pixels::{Image, CorsStatus, PixelFormat};
 use profile_traits::time::{self as profile_time, profile, ProfilerCategory};
-use script_traits::compositor::{HitTestInfo, ScrollTree};
 use script_traits::CompositorEvent::{MouseButtonEvent, MouseMoveEvent, TouchEvent, WheelEvent};
 use script_traits::{
-    AnimationState, AnimationTickType, CompositorHitTestResult, ConstellationControlMsg,
+    AnimationState, AnimationTickType, ConstellationControlMsg,
     LayoutControlMsg, MouseButton, MouseEventType, ScrollState, TouchEventType, TouchId,
-    UntrustedNodeAddress, WheelDelta, WindowSizeData, WindowSizeType,
+    WheelDelta, WindowSizeData, WindowSizeType,
 };
 use servo_geometry::{DeviceIndependentPixel, FramebufferUintLength};
 use style_traits::{CSSPixel, DevicePixel, PinchZoomFactor};
@@ -51,6 +47,8 @@ use webrender_api::{
     PropertyBinding, ReferenceFrameKind, RenderReasons, SampledScrollOffset, ScrollLocation,
     SpaceAndClipInfo, SpatialId, SpatialTreeItemKey, TransformStyle,
 };
+use webrender_traits::{CanvasToCompositorMsg, CompositorHitTestResult, FontToCompositorMsg, NetToCompositorMsg, ImageUpdate, SerializedImageUpdate, ScriptToCompositorMsg, UntrustedNodeAddress};
+use webrender_traits::display_list::{HitTestInfo, ScrollTree};
 
 use crate::gl::RenderTargetInfo;
 use crate::touch::{TouchAction, TouchHandler};
@@ -696,7 +694,7 @@ impl<Window: WindowMethods + ?Sized> IOCompositor<Window> {
     fn handle_webrender_message(&mut self, msg: ForwardedToCompositorMsg) {
         match msg {
             ForwardedToCompositorMsg::Layout(
-                script_traits::ScriptToCompositorMsg::SendInitialTransaction(pipeline),
+                ScriptToCompositorMsg::SendInitialTransaction(pipeline),
             ) => {
                 let mut txn = Transaction::new();
                 txn.set_display_list(WebRenderEpoch(0), (pipeline, Default::default()));
@@ -706,7 +704,7 @@ impl<Window: WindowMethods + ?Sized> IOCompositor<Window> {
             },
 
             ForwardedToCompositorMsg::Layout(
-                script_traits::ScriptToCompositorMsg::SendScrollNode(
+                ScriptToCompositorMsg::SendScrollNode(
                     pipeline_id,
                     point,
                     external_scroll_id,
@@ -744,7 +742,7 @@ impl<Window: WindowMethods + ?Sized> IOCompositor<Window> {
             },
 
             ForwardedToCompositorMsg::Layout(
-                script_traits::ScriptToCompositorMsg::SendDisplayList {
+                ScriptToCompositorMsg::SendDisplayList {
                     display_list_info,
                     display_list_descriptor,
                     display_list_receiver,
@@ -799,7 +797,7 @@ impl<Window: WindowMethods + ?Sized> IOCompositor<Window> {
                     .send_transaction(self.webrender_document, transaction);
             },
 
-            ForwardedToCompositorMsg::Layout(script_traits::ScriptToCompositorMsg::HitTest(
+            ForwardedToCompositorMsg::Layout(ScriptToCompositorMsg::HitTest(
                 pipeline,
                 point,
                 flags,
@@ -822,30 +820,30 @@ impl<Window: WindowMethods + ?Sized> IOCompositor<Window> {
             },
 
             ForwardedToCompositorMsg::Layout(
-                script_traits::ScriptToCompositorMsg::GenerateImageKey(sender),
+                ScriptToCompositorMsg::GenerateImageKey(sender),
             ) |
-            ForwardedToCompositorMsg::Net(net_traits::NetToCompositorMsg::GenerateImageKey(
+            ForwardedToCompositorMsg::Net(NetToCompositorMsg::GenerateImageKey(
                 sender,
             )) => {
                 let _ = sender.send(self.webrender_api.generate_image_key());
             },
 
             ForwardedToCompositorMsg::Layout(
-                script_traits::ScriptToCompositorMsg::UpdateImages(updates),
+                ScriptToCompositorMsg::UpdateImages(updates),
             ) => {
                 let mut txn = Transaction::new();
                 for update in updates {
                     match update {
-                        script_traits::SerializedImageUpdate::AddImage(key, desc, data) => {
+                        SerializedImageUpdate::AddImage(key, desc, data) => {
                             match data.to_image_data() {
                                 Ok(data) => txn.add_image(key, desc, data, None),
                                 Err(e) => warn!("error when sending image data: {:?}", e),
                             }
                         },
-                        script_traits::SerializedImageUpdate::DeleteImage(key) => {
+                        SerializedImageUpdate::DeleteImage(key) => {
                             txn.delete_image(key)
                         },
-                        script_traits::SerializedImageUpdate::UpdateImage(key, desc, data) => {
+                        SerializedImageUpdate::UpdateImage(key, desc, data) => {
                             match data.to_image_data() {
                                 Ok(data) => txn.update_image(key, desc, data, &DirtyRect::All),
                                 Err(e) => warn!("error when sending image data: {:?}", e),
@@ -857,7 +855,7 @@ impl<Window: WindowMethods + ?Sized> IOCompositor<Window> {
                     .send_transaction(self.webrender_document, txn);
             },
 
-            ForwardedToCompositorMsg::Net(net_traits::NetToCompositorMsg::AddImage(
+            ForwardedToCompositorMsg::Net(NetToCompositorMsg::AddImage(
                 key,
                 desc,
                 data,
@@ -929,13 +927,13 @@ impl<Window: WindowMethods + ?Sized> IOCompositor<Window> {
                 let mut txn = Transaction::new();
                 for update in updates {
                     match update {
-                        ImageUpdate::Add(key, descriptor, data) => {
+                        ImageUpdate::AddImage(key, descriptor, data) => {
                             txn.add_image(key, descriptor, data, None)
                         },
-                        ImageUpdate::Update(key, descriptor, data) => {
+                        ImageUpdate::UpdateImage(key, descriptor, data) => {
                             txn.update_image(key, descriptor, data, &DirtyRect::All)
                         },
-                        ImageUpdate::Delete(key) => txn.delete_image(key),
+                        ImageUpdate::DeleteImage(key) => txn.delete_image(key),
                     }
                 }
                 self.webrender_api
@@ -1469,7 +1467,7 @@ impl<Window: WindowMethods + ?Sized> IOCompositor<Window> {
             event_type,
             button,
             result.point_in_viewport.to_untyped(),
-            Some(result.node),
+            Some(result.node.into()),
             Some(result.point_relative_to_item),
             button as u16,
         );
@@ -1549,7 +1547,7 @@ impl<Window: WindowMethods + ?Sized> IOCompositor<Window> {
             None => return,
         };
 
-        let event = MouseMoveEvent(result.point_in_viewport, Some(result.node), 0);
+        let event = MouseMoveEvent(result.point_in_viewport, Some(result.node.into()), 0);
         let msg = ConstellationMsg::ForwardEvent(result.pipeline_id, event);
         if let Err(e) = self.constellation_chan.send(msg) {
             warn!("Sending event to constellation failed ({:?}).", e);
@@ -1568,7 +1566,7 @@ impl<Window: WindowMethods + ?Sized> IOCompositor<Window> {
                 event_type,
                 identifier,
                 result.point_in_viewport,
-                Some(result.node),
+                Some(result.node.into()),
             );
             let msg = ConstellationMsg::ForwardEvent(result.pipeline_id, event);
             if let Err(e) = self.constellation_chan.send(msg) {
@@ -1579,7 +1577,7 @@ impl<Window: WindowMethods + ?Sized> IOCompositor<Window> {
 
     pub fn send_wheel_event(&mut self, delta: WheelDelta, point: DevicePoint) {
         if let Some(result) = self.hit_test_at_point(point) {
-            let event = WheelEvent(delta, result.point_in_viewport, Some(result.node));
+            let event = WheelEvent(delta, result.point_in_viewport, Some(result.node.into()));
             let msg = ConstellationMsg::ForwardEvent(result.pipeline_id, event);
             if let Err(e) = self.constellation_chan.send(msg) {
                 warn!("Sending event to constellation failed ({:?}).", e);
