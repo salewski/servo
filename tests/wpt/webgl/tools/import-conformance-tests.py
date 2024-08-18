@@ -19,10 +19,6 @@ PATCHES = [
     ("shader-varying-packing-restrictions.patch", "conformance/glsl/misc/shader-varying-packing-restrictions.html"),
 ]
 
-# Fix for 'UnicodeDecodeError: 'ascii' codec can't decode byte'
-reload(sys)  
-sys.setdefaultencoding('utf8')
-
 def usage():
     print("Usage: {} destination [existing_webgl_repo]".format(sys.argv[0]))
     sys.exit(1)
