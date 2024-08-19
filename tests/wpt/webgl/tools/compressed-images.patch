@@ -1,7 +1,7 @@
-diff --git a/tests/wpt/webgl/tests/conformance/extensions/webgl-compressed-texture-s3tc.html b/tests/wpt/webgl/tests/conformance/extensions/webgl-compressed-texture-s3tc.html
+diff --git a/tests/wpt/webgl/tests/conformance/extensions/s3tc-and-rgtc.html b/tests/wpt/webgl/tests/conformance/extensions/s3tc-and-rgtc.html
 index 308e8577a8..ea56180224 100644
---- a/tests/wpt/webgl/tests/conformance/extensions/webgl-compressed-texture-s3tc.html
-+++ b/tests/wpt/webgl/tests/conformance/extensions/webgl-compressed-texture-s3tc.html
+--- a/tests/wpt/webgl/tests/conformance/extensions/s3tc-and-rgtc.html
++++ b/tests/wpt/webgl/tests/conformance/extensions/s3tc-and-rgtc.html
 @@ -695,13 +695,6 @@ function compareRect(width, height, channels, expectedData, filteringMode) {
      gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, actual);
      wtu.glErrorShouldBe(gl, gl.NO_ERROR, "reading back pixels");
