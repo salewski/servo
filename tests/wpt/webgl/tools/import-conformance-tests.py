@@ -54,13 +54,13 @@ def get_tests(base_dir, file_name, tests_list):
 def process_test(test):
     (new, new_path) = tempfile.mkstemp()
     script_tag_found = False
-    with open(test, "r") as test_file:
+    with open(test, "rb") as test_file:
         for line in test_file:
-            if not script_tag_found and "<script" in line:
-                indent = ' ' * line.index('<')
+            if not script_tag_found and b"<script" in line:
+                indent = ' ' * line.index(b'<')
                 script_tag_found = True
-                os.write(new, "{}<script src=/resources/testharness.js></script>\n".format(indent))
-                os.write(new, "{}<script src=/resources/testharnessreport.js></script>\n".format(indent))
+                os.write(new, "{}<script src=/resources/testharness.js></script>\n".format(indent).encode('utf-8'))
+                os.write(new, "{}<script src=/resources/testharnessreport.js></script>\n".format(indent).encode('utf-8'))
             os.write(new, line)
 
     os.close(new)
