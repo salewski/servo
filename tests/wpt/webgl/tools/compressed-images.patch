@@ -16,17 +16,16 @@ index 308e8577a8..ea56180224 100644
      var failed = false;
      for (var yy = 0; yy < height; ++yy) {
          for (var xx = 0; xx < width; ++xx) {
-@@ -715,6 +708,13 @@ function compareRect(width, he     ight, channels, expectedData, filteringMode) {
-             for (var jj = 0; jj < 4; ++jj) {
-                 if (actual[offset + jj] != expected[jj]) {
+@@ -715,6 +708,12 @@ function compareRect(width, he     ight, channels, expectedData, filteringMode) {
                      failed = true;
+                     testFailed(`RGB at (${xx}, ${yy}) expected: ${expected}` +
+                                ` +/- ${colorError}, was ${was}`);
 +                    var div = document.createElement("div");
 +                    div.className = "testimages";
 +                    ctu.insertCaptionedImg(div, "expected", ctu.makeScaledImage(width, height, width, expectedData, true));
-+                    ctu.insertCaptionedImg(div, "actual", ctu.makeScaledImage(width, height, width, actual, true));
++                    ctu.insertCaptionedImg(div, "actual", ctu.makeScaledImage(width, height, width, was, true));
 +                    div.appendChild(document.createElement('br'));
 +                    document.getElementById("console").appendChild(div);
-+
-                     var was = actual[offset + 0].toString();
-                     for (var j = 1; j < 4; ++j) {
-                         was += "," + actual[offset + j];
+                    break;
+                 }
+             }
