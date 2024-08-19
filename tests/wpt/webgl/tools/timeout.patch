@@ -1798,10 +1798,10 @@ index a2166e9df7..fb9067f6c2 100644
  <title>WebGL GLSL Conformance Tests - Reserved Words</title>
  <link rel="stylesheet" href="../../../resources/js-test-style.css"/>
  <link rel="stylesheet" href="../../../resources/glsl-feature-tests.css"/>
-diff --git a/tests/wpt/webgl/tests/conformance/rendering/preservedrawingbuffer-leak.html b/tests/wpt/webgl/tests/conformance/rendering/preservedrawingbuffer-leak.html
+diff --git a/conformance/rendering/preservedrawingbuffer-leak.html b/conformance/rendering/preservedrawingbuffer-leak.html
 index 3df5355..80571f5 100644
---- a/tests/wpt/webgl/tests/conformance/rendering/preservedrawingbuffer-leak.html
-+++ b/tests/wpt/webgl/tests/conformance/rendering/preservedrawingbuffer-leak.html
+--- a/conformance/rendering/preservedrawingbuffer-leak.html
++++ b/conformance/rendering/preservedrawingbuffer-leak.html
 @@ -29,6 +29,7 @@
  <html>
  <head>
