@@ -8,22 +8,22 @@ index 308e8577a8..ea56180224 100644
  
 -    var div = document.createElement("div");
 -    div.className = "testimages";
--    insertImg(div, "expected", makeImage(width, height, expectedData, channels == 4));
--    insertImg(div, "actual", makeImage(width, height, actual, channels == 4));
+-    ctu.insertCaptionedImg(div, "expected", ctu.makeScaledImage(width, height, width, expectedData, true));
+-    ctu.insertCaptionedImg(div, "actual", ctu.makeScaledImage(width, height, width, actual, true));
 -    div.appendChild(document.createElement('br'));
 -    document.getElementById("console").appendChild(div);
 -
      var failed = false;
      for (var yy = 0; yy < height; ++yy) {
          for (var xx = 0; xx < width; ++xx) {
-@@ -715,6 +708,13 @@ function compareRect(width, height, channels, expectedData, filteringMode) {
+@@ -715,6 +708,13 @@ function compareRect(width, he     ight, channels, expectedData, filteringMode) {
              for (var jj = 0; jj < 4; ++jj) {
                  if (actual[offset + jj] != expected[jj]) {
                      failed = true;
 +                    var div = document.createElement("div");
 +                    div.className = "testimages";
-+                    insertImg(div, "expected", makeImage(width, height, expectedData, channels == 4));
-+                    insertImg(div, "actual", makeImage(width, height, actual, channels == 4));
++                    ctu.insertCaptionedImg(div, "expected", ctu.makeScaledImage(width, height, width, expectedData, true));
++                    ctu.insertCaptionedImg(div, "actual", ctu.makeScaledImage(width, height, width, actual, true));
 +                    div.appendChild(document.createElement('br'));
 +                    document.getElementById("console").appendChild(div);
 +
