@@ -10,8 +10,8 @@
 -  } else {
 -    RESULTS.fail += 1;
 -  }
--  if (window.parent.webglTestHarness) {
--    window.parent.webglTestHarness.reportResults(window.location.pathname, success, msg);
+-  if (webglTestHarness) {
+-    webglTestHarness.reportResults(locationPathname, success, msg);
 +(function() {
 +  var WPT_TEST_ID = 0;
 +
@@ -22,8 +22,8 @@
 +  var wt_async_test = window.async_test;
 +
 +  window.reportTestResultsToHarness = function reportTestResultsToHarness(success, msg) {
-+    if (window.parent.webglTestHarness) {
-+      window.parent.webglTestHarness.reportResults(window.location.pathname, success, msg);
++    if (webglTestHarness) {
++      webglTestHarness.reportResults(locationPathname, success, msg);
 +    } else if (wpt_test) { // WPT test harness
 +      wpt_test(function () {
 +        wpt_assert_true(success, msg);
